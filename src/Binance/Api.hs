@@ -16,9 +16,8 @@ module Binance.Api (
 import Control.Applicative ((<|>))
 import Control.Monad (guard)
 import Control.Exception (catch)
-import Data.Maybe (listToMaybe)
 import Data.List (foldl')
-import Numeric (readFloat)
+import Numeric (readSigned, readFloat)
 import Data.Bifunctor (first, second)
 import Data.Function ((&))
 import qualified Data.HashMap.Strict as M
@@ -33,9 +32,9 @@ import Binance.Network
 import Data.ByteString (ByteString)
 
 readRational :: MonadFail m => String -> m Rational
-readRational s = case listToMaybe (readFloat s) of
-        Nothing -> fail $ "Can't parse rational"
-        Just (f, _) -> return f
+readRational s = case readSigned readFloat $ s of
+        (f, _):_ -> return f
+        _ -> fail $ "Can't parse rational"
 
 data CoinInfo = CoinInfo {
     coinTicker :: String,
