@@ -103,6 +103,12 @@ getAssets seckey apikey = catch go h
                   & first (\s -> s <> ": " <> show bs) -- append json to error
                   & second (filter ((> 0) . coinSum)) -- filter 0-balances
 
+-- |Most recent exchange rate for a pair of coins.
+-- 'exSymbol' has a value of the coins concatenated; This is not nice to work
+-- with, but the API only uses this format. For example, if an Ether was
+-- worth 2000 USDT, this would be represented as:
+--
+-- > ExchangeRate {exSymbol = "ETHUSDT", exRate = 2000 % 1}
 data ExchangeRate = ExchangeRate {
     exSymbol :: String,
     exRate :: Rational
@@ -154,18 +160,22 @@ ratesToMap = foldl' (\m r -> M.insert (exSymbol r) (exRate r) m) M.empty
 getRatesMap :: ByteString -> IO (Either String (String -> String -> Either String Rational))
 getRatesMap apikey = fmap (lookupRate . ratesToMap) <$> getRates apikey
 
--- a lot of fields are left out, as I don't need them myself, but message me if you
--- want to do more with this library
-
 -- |Represents an open order. For the meaning of non-self-explanatory fields see
 -- the binance API documentation.
+--
+-- A lot of fields are left out here, as I didn't need/understand them, but
+-- they're very easy to add, if you need them.
 data OrderInfo = OrderInfo {
+    -- |The pair, in the same format as 'exSymbol'
     ordSymbol :: String,
     ordPrice :: Rational,
     ordOrigQty :: Rational,
     ordExecutedQty :: Rational,
-    ordStatus :: String, -- this should be an enum, but idk about possible Values
-    ordType :: String, -- same for this field.
+    -- |this should be an enum, but idk about possible values
+    ordStatus :: String,
+    -- |same for this field
+    ordType :: String,
+    -- |and this field
     ordSide :: String,
     ordTime :: UTCTime
 } deriving (Show)

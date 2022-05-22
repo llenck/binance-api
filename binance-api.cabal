@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               binance-api
-version:            0.1.2.0
+version:            0.1.2.1
 
 -- vim: set expandtab:
 
